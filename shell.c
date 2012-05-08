@@ -299,6 +299,9 @@ void init()
 
 int main(int argc, char **argv, char **envp)
 {
+	// simulated PATH env variable
+	char *path_str = (char *)malloc(sizeof(char) * 256);
+
         init();
         welcomeScreen();
         shellPrompt();
