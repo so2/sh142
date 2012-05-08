@@ -1,0 +1,2 @@
+PATH=/usr/bin:/usr/sbin:/bin:/sbin:/home/usr/myname
+DATA=/data/files:home/usr/myname
