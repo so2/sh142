@@ -10,6 +10,7 @@ typedef void (*sighandler_t)(int);
 
 static char *my_argv[100], *my_envp[100];
 static char *search_path[10];
+static char *default_env;
 
 void handleUserCommand()
 {
@@ -75,11 +76,22 @@ void handleUserCommand()
 int checkBuiltInCommands()
 {
         if (strcmp("exit", commandArgv[0]) == 0) {
-                exit(EXIT_SUCCESS);
+                setenv("PATH",default_env,1);
+		exit(EXIT_SUCCESS);
         }
         if (strcmp("cd", commandArgv[0]) == 0) {
 
                 changeDirectory();
+                return 1;
+        }
+        if (strncmp("PATH=", commandArgv[0], 5) == 0) {
+
+                putenv(commandArgv[0]);
+                return 1;
+        }
+        if (strncmp("DATA=", commandArgv[0], 5) == 0) {
+
+                putenv(commandArgv[0]);
                 return 1;
         }
        /* if (strcmp("in", commandArgv[0]) == 0) {
@@ -196,16 +208,19 @@ void executeCommand(char *command[], char *file, int newDescriptor,
                 dup2(commandDescriptor, STDOUT_FILENO);
                 close(commandDescriptor);
         }
-        //if (execvp(*command, command) == -1)
-        //        perror("SHELL142");
-        
+        if (execvp(*command, command) == -1)
+                perror("SHELL142");
+       
+/* 
         copy_argv(command);
 		if(attach_path(*command) == 0) {
 			call_execve(command);
 		} else {
 			printf("%s: command not found\n", command);
 		}
+*/
 }
+
 
 void launchJob(char *command[], char *file, int newDescriptor,
                int executionMode)
@@ -484,7 +499,7 @@ int main(int argc, char **argv, char **envp)
 			linenum++;
 			fgets(contents[linenum], linelength, fp);
 			char *pos;
-			/*
+			
 			if ((pos=strchr(contents[linenum], '\n')) != NULL)
 			{
 				*pos = '\0';
@@ -493,11 +508,18 @@ int main(int argc, char **argv, char **envp)
 			{
 				*pos = '\0';
 			}
-			*/
+			
 
 			tmp = strstr(contents[linenum], "PATH");
 			if(tmp != NULL) {
 				strncpy(path_str, tmp, strlen(tmp));
+
+default_env = getenv("PATH");
+//printf("%s",default_env);
+
+//printf("%s",getenv("PATH"));
+//putenv(path_str);
+//printf("%s",path_str);
 				break;
 			}
 		}
